@@ -3,7 +3,7 @@ import sqlite3
 conn = sqlite3.connect("User_data.db")
 cursor = conn.cursor()
 
-# cursor.execute("ALTER TABLE images ADD COLUMN likes INTEGER DEFAULT 0;")
+# cursor.execute("UPDATE images SET likes = 0")
 
 
 
@@ -18,7 +18,7 @@ cursor.execute('''
     )
 ''')
 
-print("Database and table created successfully.")
+
 
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS images(
@@ -29,10 +29,10 @@ cursor.execute('''
     )
 
 ''')
-print("Images table created successfully.")
+
 
 cursor.execute('''
-    CREATE TABLE likes (
+    CREATE TABLE IF NOT EXISTS likes(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     image_id TEXT NOT NULL,
@@ -41,7 +41,7 @@ cursor.execute('''
 ''')
 
 cursor.execute('''
-    CREATE TABLE commends(
+    CREATE TABLE IF NOT EXISTS comments(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     image_id TEXT NOT NULL,
@@ -51,6 +51,7 @@ cursor.execute('''
     FOREIGN KEY (image_id) REFERENCES images (filename)
 );
 ''')
+print("all table created")
 
 conn.commit()
 conn.close()

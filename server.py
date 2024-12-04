@@ -30,7 +30,7 @@ def login():
             conn.close()
 
             if user:
-                user_id, first_name= user
+                user_id, first_name = user
                 flash(f"Wellcome, {first_name}", "Success")
                 session['user_id'] = user_id
                 print("Session User ID:", session.get('user_id'))
@@ -78,33 +78,53 @@ def signup():
             return redirect('/signup')
 
     return render_template('signup.html')
-
-# @app.route("/Home")
-# def Home():
-#     conn = sqlite3.connect("User_data.db")
-#     cursor = conn.cursor()
-#     cursor.execute("SELECT filename, description , likes FROM images")
-#     images = cursor.fetchall()
-#     conn.close()
-#     return render_template("Home.html",images=images)
 @app.route('/Home')
 def Home():
     user_id = session.get('user_id')
+    image_id = 'image_id'
+
+    if not user_id:
+        return redirect("/login")
     conn = sqlite3.connect("User_data.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT filename, description, likes FROM images")
-    images = cursor.fetchall()
+
+
+
+    # for image in cursor.execute("SELECT filename, description, likes FROM images"):
+    #     image == user_id
+    #     cursor.execute("SELECT * FROM likes WHERE user_id = ? AND image_id = ?", (user_id, image_id))
+    #     is_like = cursor.fetchone()
+    #     return is_like == True
+
+    cursor.execute("""
+            SELECT i.filename, i.description, i.likes,
+                   CASE WHEN l.user_id IS NOT NULL THEN 1 ELSE 0 END AS is_liked
+            FROM images i
+            LEFT JOIN likes l ON i.filename = l.image_id AND l.user_id = ?
+        """, (user_id,))
+
+    images = cursor.fetchall()  # Fetch all results
+
+
 
     images_with_comment = []
     for image in images:
-        cursor.execute(('''
-            SELECT comments.id, users.first_name, comments.comment FROM comments c
-            JOIN users u ON comments.user_id = users.id
-            WHERE comments.image_id = ?
-            ORDER BY comments.created_at ASC
-        '''), (image[0],))
+        cursor.execute("""
+                   SELECT c.id, u.first_name, c.comment 
+                   FROM comments c 
+                   JOIN users u ON c.user_id = u.id 
+                   WHERE c.image_id = ? 
+                   ORDER BY c.created_at ASC
+               """, (image[0],))
         comments = cursor.fetchall()
-        images_with_comment.append((image[0], image[1], image[2], image[3], comments))
+
+        images_with_comment.append({
+
+            'filename': image[0],
+            'description': images[1],
+            'likes': image[2],
+            'comments': comments
+        })
 
     conn.close()
     return render_template("home.html", images=images)
@@ -137,7 +157,7 @@ def upload():
     return  render_template("upload.html")
 
 
-@app.route('/like', methods=["POST"])
+@app.route('/like', methods=['POST'])
 def like():
     data = request.json
     image_id = data['image_id']
@@ -156,17 +176,29 @@ def like():
         conn.close()
         return jsonify({"error": "Image not found"}), 404
 
+
+    image_id = request.form.get('image_id')
+    cursor.execute("""
+        INSERT INTO likes (user_id, image_id) VALUES (?, ?)
+    """, (user_id, image_id))
+    conn.commit()
+    return jsonify({"message": "Image liked successfully"})
+
     # Check if the user already liked the image
     cursor.execute("SELECT * FROM likes WHERE user_id = ? AND image_id = ?", (user_id, image_id))
     like_exists = cursor.fetchone()
 
     if like_exists:
-        conn.close()
-        return jsonify({"error": "Already liked this post"}), 400  # Bad Request
+        # User already liked the image, so we remove the like
+        cursor.execute("DELETE FROM likes WHERE user_id = ? AND image_id = ?", (user_id, image_id))
+        cursor.execute("UPDATE images SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE filename = ?", (image_id,))
+        liked = False
+    else:
+        # Insert new like and increment the likes in the images table
+        cursor.execute("INSERT INTO likes (user_id, image_id) VALUES (?, ?)", (user_id, image_id))
+        cursor.execute("UPDATE images SET likes = likes + 1 WHERE filename = ?", (image_id,))
+        liked = True
 
-    # Add the like
-    cursor.execute("INSERT INTO likes (user_id, image_id) VALUES (?, ?)", (user_id, image_id))
-    cursor.execute("UPDATE images SET likes = likes + 1 WHERE filename = ?", (image_id,))
     conn.commit()
 
     # Fetch the updated like count
@@ -174,23 +206,53 @@ def like():
     updated_likes = cursor.fetchone()[0]
     conn.close()
 
-    return jsonify({"likes": updated_likes})
+    return jsonify({"liked": liked, "likes": updated_likes})
+
 
 @app.route('/comment', methods = ["GET", "POST"])
 def comment():
     data = request.json
-    comment_text = data('comment')
-    image_id = data('image_id')
+    comment_text = data.get('comment')
+    image_id = data.get('image_id')
     user_id = session.get("user_id")
 
-    conn = sqlite3.connect("user_data_db")
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
+    conn = sqlite3.connect("User_data.db")
     cursor = conn.cursor()
 
-    cursor.execute( "INSERT INTO comments (user_id, image_id, comment) VALUES (?,?)",(user_id, image_id,comment_text ))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO comments (user_id, image_id, comment) VALUES (?, ?, ?)",
+            (user_id, image_id, comment_text)
+        )
+        conn.commit()
 
+        # Fetch the comment details to send back to frontend
+        cursor.execute("""
+               SELECT c.id, u.first_name, c.comment 
+               FROM comments c 
+               JOIN users u ON c.user_id = u.id 
+               WHERE c.id = ?
+           """, (cursor.lastrowid,))
+        comment_details = cursor.fetchone()
 
+        conn.close()
+
+        return jsonify({
+            "id": comment_details[0],
+            "name": comment_details[1],
+            "comment": comment_details[2],
+
+        })
+
+    except Exception as e:
+        conn.rollback()
+
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
 
 
 

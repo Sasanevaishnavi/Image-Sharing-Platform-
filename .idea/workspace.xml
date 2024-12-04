@@ -6,6 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="29bd5d84-e108-41fd-8260-8eaa1a7d6f53" name="Changes" comment="Image Sharing Platform">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database_setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database_setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/User_data.db" beforeDir="false" afterPath="$PROJECT_DIR$/User_data.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +68,7 @@
       <recent name="C:\Users\vaish\restartday63" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Database_setup">
+  <component name="RunManager" selected="Python.server">
     <configuration name="Database_setup" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="restartday63" />
       <option name="ENV_FILES" value="" />
@@ -108,8 +115,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Database_setup" />
         <item itemvalue="Python.server" />
+        <item itemvalue="Python.Database_setup" />
       </list>
     </recent_temporary>
   </component>
@@ -161,7 +168,23 @@
       <option name="project" value="LOCAL" />
       <updated>1733160514616</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Image Sharing Platform">
+      <option name="closed" value="true" />
+      <created>1733160932793</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1733160932793</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Image Sharing Platform">
+      <option name="closed" value="true" />
+      <created>1733160966054</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1733160966054</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
