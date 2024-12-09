@@ -29,7 +29,7 @@ class Image(db.Model):
 class Like(db.Model):
     __tablename__ = 'likes'
     id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, nullable=False)
+    post_id = db.Column(db.Integer, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_likes_user_id'), nullable=False)
     image_id = db.Column(db.Integer, db.ForeignKey('images.id'), nullable=False)
     

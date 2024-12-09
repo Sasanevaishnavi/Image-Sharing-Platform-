@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+ 
+    .like_btn{
+        
+        font-size: 32px;
+        color: gray;
+        background: none;
+        border: none;
+        cursor: pointer;
+        outline: none;
+        
+    }
+    .like_btn.red {
+        color: red;
+    }
+    
+
+    .like_btn:hover {
+        color: rgba(224, 64, 36, 0.67);
+    }
+
+    
+
+</style>
+<div class="text-center mt-5">
+    <button id="likeButton" class="like_btn">
+        <i class="fas fa-heart"></i> 
+    </button>
+    <span class="like_count ms-2">0</span>
+</div>
+
+{% endblock content %}
+
+
+{% block scripts %}
+<script>
+    const likeButton = document.getElementById("likeButton");
+
+    likeButton.addEventListener("click", function () {
+        // Toggle the "red" class for color change
+        this.classList.toggle("red");
+
+        
+    });
+</script>       
+{% endblock scripts %}

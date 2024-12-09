@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Image, Like, Comment
 import os
+from datetime import datetime
 
 
 
@@ -31,7 +32,7 @@ def init_routes(app):
                     print("Password verified") 
                     
                     flash(f"Welcome, {user.first_name}", "success")
-                    session['user_id'] = user.id  # Save user ID in the session
+                    session['user_id'] = user.id # Save user ID in the session
                     print("Session User ID:", session.get('user_id'))
                     return redirect(url_for('Home'))  # Ensure correct route name
                 else:
@@ -96,117 +97,41 @@ def init_routes(app):
         return render_template("home.html", images=image_data)
     
 
-    # @app.route("/comments", methods =["GET", "POST"] )
-    # def comments():
-    #     data = request.json
-    #     comment_text = data.get('comment')
-    #     image_id = data.get('image_id')
-    #     user_id = session.get("user_id")
-
-    #     if not user_id:
-    #         return jsonify({"error": "User not logged in"}), 401
-
-    #     if not comment_text:
-    #         return jsonify({"error": "Comment cannot be empty"}), 400
-
-    #     try:
-    #         # Insert comment into the database
-    #         new_comment = Comment(
-    #             user_id=user_id,
-    #             image_id=image_id,
-    #             comment=comment_text
-    #             )
-    #         db.session.add(new_comment)
-    #         db.session.commit()
-
-    #         # Fetch the inserted comment details
-    #         comment_details = db.session.query(
-    #             Comment.id, User.first_name, Comment.comment
-    #         ).join(User, Comment.user_id == User.id).filter(Comment.id == new_comment.id).first()
-
-    #         if comment_details:
-    #             return jsonify({
-    #                 "id": comment_details[0],
-    #                 "name": comment_details[1],
-    #                 "comment": comment_details[2],
-    #             })
-    #         else:
-    #             return jsonify({"error": "Failed to retrieve the new comment."}), 500
-
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return jsonify({"error": "An internal error occurred. Please try again later."}), 500
-
-    @app.route('/like', methods=['POST'])
-    def like_image():
-        if 'user_id' not in session:
-            return jsonify({'error': 'Please login first'}), 401
-
-        data = request.json
-        image_id = data.get('image_id')
-        user_id = session['user_id']
-
-        # Check if image exists
-        image = Image.query.get(image_id)
-        if not image:
-            return jsonify({'error': 'Image not found'}), 404
-
-        # Check if user already liked the image
-        existing_like = Like.query.filter_by(user_id=user_id, image_id=image_id).first()
-
-        try:
-            if existing_like:
-                # Unlike the image
-                db.session.delete(existing_like)
-                image.likes -= 1
-                liked = False
-            else:
-                # Like the image
-                new_like = Like(user_id=user_id, image_id=image_id)
-                db.session.add(new_like)
-                image.likes += 1
-                liked = True
-
-            db.session.commit()
-            
-            return jsonify({
-                'liked': liked, 
-                'total_likes': image.likes
-            })
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': 'An error occurred'}), 500
 
     @app.route('/comments', methods=['POST'])
     def add_comment():
+        print("Adding comment...")
         if 'user_id' not in session:
             return jsonify({'error': 'Please login first'}), 401
 
         data = request.json
         image_id = data.get('image_id')
         comment_text = data.get('comment')
-
-        if not comment_text:
+        user_id = session.get('user_id')
+        
+        # Validate inputs
+        if not comment_text or not image_id:
             return jsonify({'error': 'Comment cannot be empty'}), 400
 
-        try:
-            new_comment = Comment(
-                user_id=session['user_id'], 
-                image_id=image_id, 
-                comment=comment_text
-            )
-            db.session.add(new_comment)
-            db.session.commit()
+        new_comment = Comment(
+            user_id=user_id,
+            image_id=image_id, 
+            comment=comment_text,
+            created_at=datetime.utcnow()  # Ensure this is correctly recorded
+        )
+        db.session.add(new_comment)
+        db.session.commit()
 
-            return jsonify({
-                'comment': comment_text,
-                'username': current_user.first_name,  # Assuming you have current_user set up
-                'timestamp': new_comment.created_at.isoformat()
-            })
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': 'Failed to add comment'}), 500
-    @app.route('/get_comments/<int:image_id>')
+        return jsonify({
+            'comment': new_comment.comment,
+            'username': session.get('username'),  # Assuming username is in session
+            'timestamp': new_comment.created_at.isoformat()
+        })
+
+
+    
+
+    @app.route('/get_comments/<int:image_id>', methods=["GET"])
     def get_comments(image_id):
         comments = Comment.query.filter_by(image_id=image_id).order_by(Comment.created_at.desc()).all()
         
@@ -218,45 +143,60 @@ def init_routes(app):
         
         return jsonify(comments_data)
     
-
-    # @app.route("/like", methods = ["GET","POST"])
-    # def like_image():
-    #     if 'user_id' not in session:
-    #         return jsonify({'error': 'Please login first'}), 401
-    
-    #     data = request.json
-    #     image_id = data['image_id']
-    #     user_id = session.get('user_id')  # Fetch user ID from session
-
-    #     if not user_id:
-    #         return jsonify({"error": "User not logged in"}), 401
-
-    #     # Ensure the image exists
-    #     image = Image.query.filter_by(id=image_id).first()
-    #     if not image:
-    #         return jsonify({"error": "Image not found"}), 404
-
-    #     # Check if the user already liked the image
-    #     existing_like = Like.query.filter_by(user_id=user_id, image_id=image_id).first()
-
-    #     if existing_like:
-    #         # Unlike the image
-    #         db.session.delete(existing_like)
-    #         image.likes = db.func.ifnull(image.likes - 1, 0)  # Decrease like count but prevent negative values
-    #         liked = False
-    #     else:
-    #         # Like the image
-    #         new_like = Like(user_id=user_id, image_id=image_id)
-    #         db.session.add(new_like)
-    #         image.likes = db.func.ifnull(image.likes + 1, 1)  # Increment like count
-    #         liked = True
-
-    #     db.session.commit()
-
-    #     return jsonify({"liked": liked,
-    #                      "total_likes": image.likes})
+    @app.route("/newHome", methods = ["GET","POST"])
+    def newhome():
+       
         
+        return render_template("newHome.html")
 
+    @app.route("/like", methods=["POST"])
+    def like_image():
+        if 'user_id' not in session:
+            print("User not logged in.")
+            return jsonify({'error': 'User not logged in'}), 401
+
+        try:
+            data = request.json
+            print(f"Received data: {data}")
+            image_id = data.get('image_id')  # Safely get the image_id from the request
+            user_id = session.get('user_id')  # Fetch user ID from session
+            post_id=0
+
+            if not image_id:
+                print("Missing image ID.")
+                return jsonify({"error": "Image ID is missing"}), 400
+
+            # Ensure the image exists
+            image = Image.query.filter_by(id=image_id).first()
+            if not image:
+                return jsonify({"error": "Image not found"}), 404
+
+
+              # Fetch post_id from the request
+            
+                  # Define logic to determine post_id
+                # Check if the user already liked the image
+            existing_like = Like.query.filter_by(user_id=user_id, image_id=image_id).first()
+
+            if existing_like:
+                    # Unlike the image
+                    db.session.delete(existing_like)
+                    image.likes = max(image.likes - 1, 0)  # Prevent negative likes
+                    liked = False
+            else:
+                    # Like the image
+                    new_like = Like(user_id=user_id, image_id=image_id, post_id=post_id)
+                    db.session.add(new_like)
+                    image.likes += 1  # Increment like count
+                    liked = True
+
+            db.session.commit()
+
+            return jsonify({"liked": liked, "total_likes": image.likes})
+        except Exception as e:
+            print(f"Error processing like: {e}")
+            return jsonify({"error": "Internal Server Error"}), 500
+    
     @app.route('/upload', methods=['GET', 'POST'])
     def upload():
         if request.method == "POST":
@@ -276,7 +216,8 @@ def init_routes(app):
                 image.save(filepath)
 
                 # Save the image details in the database
-                new_image = Image(filename=filename, description=description)
+                file_type = image.mimetype
+                new_image = Image(filename=filename, type=file_type, description=description)
                 db.session.add(new_image)
                 db.session.commit()
 
@@ -285,29 +226,9 @@ def init_routes(app):
 
         return render_template("upload.html")
 
-    # @app.route('/get_comments/<int:image_id>')
-    # def get_comments(image_id):
-    #     # Fetch comments for the given image ID, including user details
-    #     comments = (
-    #         db.session.query(User.first_name, Comment.comment, Comment.created_at)
-    #         .join(User, Comment.user_id == User.id)
-    #         .filter(Comment.image_id == image_id)
-    #         .order_by(Comment.created_at.asc())
-    #         .all()
-    #     )
+    
 
-        # Return the comments as JSON
-        # return jsonify([
-        #     {
-        #         "username": comment[0],
-        #         "comment": comment[1],
-        #         "created_at": comment[2]
-        #     }
-        #     for comment in comments
-        # ])
 
-    # Add other routes (get_comments, upload, like, comment) similarly
-    # Truncated for brevity, follow the same pattern as above routes
 
     return app
 

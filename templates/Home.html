@@ -1,145 +1,214 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
+    /* Reset and base styles */
     * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-body, html {
-    height: 100%;
-    font-family: Arial, sans-serif;
-}
+    body, html {
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+    }
 
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
+    .container-fluid {
+        padding: 20px;
+    }
 
-.upload-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    font-size: 18px;
-    padding: 15px 30px;
-    text-decoration: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
+    /* Navbar styles */
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 30px;
+        background-color: #070606;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-.upload-button:hover {
-    background-color: #45a049;
-    transform: scale(1.1);
-}
+    .navbar-logo {
+        display: flex;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+    }
 
-.upload-button:active {
-    background-color: #388e3c;
-}
+    .navbar-logo img {
+        height: 40px;
+        margin-right: 10px;
+    }
 
+    .navbar-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .navbar-button:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+
+    /* Card styles */
     .card {
-        height: 400px;
+        height: 350px;
         display: flex;
         flex-direction: column;
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border-radius: 10px;
     }
 
     .card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transform: scale(1.02);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .card-img-top {
-        height: 250px;
+        height: 200px;
         object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .card-body {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .like-btn, .comment-btn {
+        font-size: 22px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: auto;
     }
 
     .like-btn {
-        background: none;
-        border: none;
-        transition: color 0.3s ease;
+        background-color: #f1f1f1;
+        color: gray;
     }
 
     .like-btn:hover {
-        color: red;
+        background-color: rgba(224, 64, 36, 0.1);
     }
 
-    .like-btn.liked {
+    .like-btn.red {
         color: red;
+        background-color: rgba(224, 64, 36, 0.2);
     }
 
     .comment-btn {
-        background: none;
-        border: none;
+        background-color: #f1f1f1;
         color: #6c757d;
-        transition: color 0.3s ease;
     }
 
     .comment-btn:hover {
-        color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    /* Description and comment section */
+    .card-des {
+        font-size: 14px;
+        color: #6c757d;
     }
 
     .comment-section {
-        max-height: 200px;
+        max-height: 150px;
         overflow-y: auto;
+        background: #f8f8f8;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    .description-expand {
-        cursor: pointer;
-        color: #007bff;
+    .comment-form textarea {
+        width: 100%;
+        margin-bottom: 10px;
     }
-</style> 
+
+    .comments-list {
+        font-size: 14px;
+        color: #444;
+    }
+
+    .comments-list div {
+        margin-bottom: 5px;
+        padding: 5px;
+        background: #e9ecef;
+        border-radius: 5px;
+    }
+
+</style>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="#" class="navbar-logo">
+        <img src="{{ url_for('static', filename='logoo/insta_logo.png') }}" alt="Logo">
+        InstaVibe
+    </a>
+    <a href="{{ url_for('upload') }}" class="navbar-button">Upload Image</a>
+</nav>
+
 <div class="container-fluid mt-4">
     <h1 class="text-center mb-4">Uploaded Images</h1>
-    <div class="container">
-        <a href="{{ url_for('upload') }}" class="upload-button">Upload Image</a>
-    </div>
-    
-
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for image in images %}
         <div class="col">
             <div class="card h-100 shadow-sm" data-image-id="{{ image['image_id'] }}">
                 <img src="{{ url_for('static', filename='uploads/' + image['filename']) }}" 
-                class="card-img-top" 
-                alt="{{ image['description'] }}">
-                <!-- like session -->
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button class="like-btn {{ 'liked' if image['is_liked'] else '' }}"
-                         data-image-id="{{ image['image_id'] }}">
-                            <i class="fas fa-heart  {{ 'text-danger' if image['is_liked'] else 'text-muted' }}"></i>
-                            
-                        </button>
-                        <span class="like-count ms-2">{{ image['likes'] }}</span>
+                     class="card-img-top" alt="{{ image['description'] }}">
 
-                        <button class="comment-btn btn btn-outline-secondary comment-toggle mt-2"
-                         data-image-id="{{ image['image_id'] }}">
+                <div class="card-body">
+                    <!-- Like and Comment Buttons -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="like-btn">
+                            <i class="fas fa-heart text-muted"></i>
+                        </button>
+                        <span class="like_count ms-2">{{ image['likes'] }}</span>
+
+                        <button class="comment-btn btn btn-outline-secondary comment-toggle" data-image-id="{{ image['image_id'] }}">
                             <i class="fas fa-comment"></i>
                         </button>
-                    </div> 
+                    </div>
 
-                    <h6 class="card-title">Description</h6>
-                    <p class="card-text text-muted description-text" id="desc-{{ image['image_id'] }}">
-                        {{ image['description'][:100] }}{% if image['description']|length > 100 %}...{% endif %}
-                        {% if image['description']|length > 100 %}
-                        <!-- <span class="description-expand" 
-                        onclick="toggleDescription({{ image['image_id'] }})">More</span>
-                        {% endif %} -->
-                    </p>
+                    <!-- Description -->
+                    <div class="card-des">
+                        <h6 class="card-title mt-2">Description</h6>
+                        <p class="card-text text-muted description-text" id="desc-{{ image['image_id'] }}">
+                            {{ image['description'][:100] }}{% if image['description']|length > 100 %}...{% endif %}
+                        </p>
+                    </div>
 
+                    <!-- Comment Section -->
                     <div class="comment-section mt-3" style="display:none;">
-                        <textarea class="form-control comment-input" rows="3" placeholder="Write a comment"></textarea>
-                        <button class="btn btn-primary submit-comment mt-2" data-image-id="{{ image['image_id'] }}">
-                            Post Comment
-                        </button>
+                        <form class="comment-form">
+                            <textarea class="form-control comment-input" rows="3" placeholder="Write a comment"></textarea>
+                            <button class="btn btn-primary submit-comment mt-2" data-image-id="{{ image['image_id'] }}">
+                                Post Comment
+                            </button>
+                        </form>   
+
                         <div class="comments-list mt-3">
                             <!-- Comments will be dynamically added here -->
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -147,150 +216,109 @@ body, html {
         {% endfor %}
     </div>
 </div>
+{% endblock %}
 
-{% endblock %} 
+ 
+
+{% block scripts %}
 
 <script>
 
-   document.addEventListener('DOMContentLoaded', function () {
-  // Like Button Handler
-    function setupLikebuttons(){
-        const likeButtons = document.querySelectorAll(".like_button");
+document.querySelectorAll(".like_btn").forEach(button => {
+    button.addEventListener("click", function () {
+        const imageId = this.closest(".text-center").getAttribute("data-image-id");
+        console.log("Like button clicked for image ID:", imageId);
 
-        likeButtons.forEach(button =>{
-            button.addEventListener("click", function(){
-                const imageId = this.getAttribute("data_image_id")
-
-                fetch("/like",{
-                    method:"POST",
-                    headers:{
-                        "Content-type":'application/json',
-                    },
-                    body: JSON.stringify({ image_id: imageId })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Like action failed');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Update like count
-                    const likeCountElement = button.closest('.card').querySelector('.like-count');
-                    likeCountElement.textContent = data.total_likes;
-                    
-                    // Toggle like button color
-                    button.classList.toggle('liked', data.liked);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to process like. Please try again.');
-                });
-            });
-
-        });
-
-    }
-     // Comment Section Handler
-     function setupCommentSection() {
-        const commentButtons = document.querySelectorAll('.comment-toggle');
-        
-        commentButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const imageId = this.getAttribute('data-image-id');
-                const commentSection = this.closest('.card').querySelector('.comment-section');
-                const commentsList = commentSection.querySelector('.comments-list');
-                const commentInput = commentSection.querySelector('.comment-input');
-                const sendButton = commentSection.querySelector('.comment-send');
-                 // Toggle comment section visibility
-                commentSection.classList.toggle('d-none');
-
-                // Load comments if section is being opened
-                if (!commentSection.classList.contains('d-none')) {
-                    fetchComments(imageId, commentsList);
-                }
-
-                // Send comment handler
-                sendButton.onclick = function() {
-                    const commentText = commentInput.value.trim();
-                    
-                    if (!commentText) {
-                        alert('Please enter a comment');
-                        return;
-                    }
-
-                    sendComment(imageId, commentText, commentsList, commentInput);
-                };
-            });
-        });
-    }
-    // Fetch Comments
-    function fetchComments(imageId, commentsList) {
-        fetch(`/get_comments/${imageId}`)
-        .then(response => response.json())
-        .then(comments => {
-            commentsList.innerHTML = ''; // Clear existing comments
-            comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.classList.add('comment', 'mb-2');
-                commentElement.innerHTML = `
-                    <strong>${comment.username}</strong>
-                    <p>${comment.comment}</p>
-                    <small class="text-muted">${new Date(comment.timestamp).toLocaleString()}</small>
-                `;
-                commentsList.appendChild(commentElement);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching comments:', error);
-            alert('Failed to load comments');
-        });
-    }
-    // Send Comment
-    function sendComment(imageId, commentText, commentsList, commentInput) {
-        fetch('/comments', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                image_id: imageId, 
-                comment: commentText 
-            })
+        // Send the like request to the server
+        fetch("/like", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_id: imageId })
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Comment submission failed');
-            }
+            if (!response.ok) throw new Error("Internal Server Error");
             return response.json();
         })
         .then(data => {
-            // Add new comment to list
-            const commentElement = document.createElement('div');
-            commentElement.classList.add('comment', 'mb-2');
-            commentElement.innerHTML = `
-                <strong>${data.username}</strong>
-                <p>${data.comment}</p>
-                <small class="text-muted">${new Date(data.timestamp).toLocaleString()}</small>
-            `;
-            commentsList.prepend(commentElement); // Add to top of comments
-            
-            // Clear input
-            commentInput.value = '';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to post comment');
-        });
-    }
+            console.log("Like response data:", data);
 
-    // Initialize functionality
-    setupLikeButtons();
-    setupCommentSection();
+            // Update like count
+            const likeCountElement = this.closest(".text-center").querySelector(".like_count");
+            if (likeCountElement) {
+                likeCountElement.textContent = data.total_likes;
+            }
+
+            // Toggle the red class for heart icon color change
+            const icon = this.querySelector("i");
+            if (icon) {
+                icon.classList.toggle("red", data.liked); // Toggle red class
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
 });
 
+document.querySelectorAll(".comment-toggle").forEach(button => {
+    button.addEventListener("click", function () {
+        const imageId = this.getAttribute("data-image-id");
+        const commentSection = this.closest(".card").querySelector(".comment-section");
+
+        // Toggle the visibility of the comment box
+        commentSection.style.display = commentSection.style.display === "none" ? "block" : "none";
+
+        // If the section is being opened, fetch and display existing comments
+        if (commentSection.style.display !== "none") {
+            fetch(`/get_comments/${imageId}`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentsList = commentSection.querySelector(".comments-list");
+                    commentsList.innerHTML = "";  // Clear existing comments
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement("div");
+                        commentElement.innerHTML = `<strong>${comment.username}:</strong> ${comment.comment}<br><small>${comment.timestamp}</small>`;
+                        commentsList.appendChild(commentElement);
+                    });
+                });
+        }
+    });
+});
+
+document.querySelectorAll(".submit-comment").forEach(button => {
+    button.addEventListener("click", function (event) {
+        event.preventDefault();  // Prevent default form submission
+        const imageId = this.getAttribute("data-image-id");
+        const commentText = this.closest(".comment-form").querySelector(".comment-input").value.trim();
+
+        if (!commentText) {
+            alert("Please enter a comment.");
+            return;
+        }
+
+        // Send the comment to the server
+        fetch("/comments", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                image_id: imageId,
+                comment: commentText
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const commentsList = this.closest(".comment-section").querySelector(".comments-list");
+            const newCommentElement = document.createElement("div");
+            newCommentElement.innerHTML = `<strong>${data.username}:</strong> ${data.comment}<br><small>${data.timestamp}</small>`;
+            commentsList.prepend(newCommentElement);  // Add the new comment to the top
+        })
+        .catch(error => console.error("Error posting comment:", error));
+    });
+});
+
+    
+  </script>
 
 
-
-
+{% endblock %}
 
