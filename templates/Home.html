@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    /* Reset and base styles */
+    :root {
+        --primary-color: #0095f6;
+        --secondary-color: #262626;
+        --background-color: #fafafa;
+        --border-color: #dbdbdb;
+    }
+
     * {
         margin: 0;
         padding: 0;
@@ -10,206 +16,213 @@
 
     body, html {
         height: 100%;
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-    }
-
-    .container-fluid {
-        padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--background-color);
     }
 
     /* Navbar styles */
     .navbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px 30px;
-        background-color: #070606;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background-color: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 0;
     }
 
     .navbar-logo {
         display: flex;
         align-items: center;
-        color: white;
+        color: var(--secondary-color);
         font-size: 24px;
-        font-weight: bold;
+        font-weight: 600;
         text-decoration: none;
+        gap: 8px;
     }
 
     .navbar-logo img {
-        height: 40px;
-        margin-right: 10px;
+        height: 32px;
     }
 
-    .navbar-button {
-        background-color: #4CAF50;
+    .upload-btn {
+        background-color: var(--primary-color);
         color: white;
-        padding: 10px 20px;
-        font-size: 16px;
+        padding: 8px 16px;
         border-radius: 8px;
-        text-decoration: none;
-        transition: background-color 0.3s ease, transform 0.3s ease;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
 
-    .navbar-button:hover {
-        background-color: #45a049;
-        transform: scale(1.05);
+    .upload-btn:hover {
+        background-color: #0081dd;
+        color: white;
     }
 
     /* Card styles */
     .card {
-        height: 350px;
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: white;
+        margin-bottom: 24px;
+        overflow: hidden;
     }
 
-    .card:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .card-header {
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .card-img-top {
-        height: 200px;
+        width: 100%;
+        height: 300px; 
         object-fit: cover;
-        border-radius: 10px 10px 0 0;
+        display: block;
     }
 
-    .card-body {
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .like-btn, .comment-btn {
-        font-size: 22px;
-        padding: 10px;
+    .card-actions {
+        padding: 12px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+        gap: 16px;
+    }
+
+    .action-btn {
+        background: none;
         border: none;
+        padding: 0;
+        font-size: 24px;
+        color: var(--secondary-color);
         cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin: auto;
+        transition: all 0.2s ease;
     }
 
-    .like-btn {
-        background-color: #f1f1f1;
-        color: gray;
+    .action-btn:hover {
+        transform: scale(1.1);
     }
 
-    .like-btn:hover {
-        background-color: rgba(224, 64, 36, 0.1);
+    .likes-count {
+        font-weight: 600;
+        margin-left: 4px;
     }
 
-    .like-btn.red {
-        color: red;
-        background-color: rgba(224, 64, 36, 0.2);
+    .card-description {
+        padding: 0 12px 12px;
     }
 
-    .comment-btn {
-        background-color: #f1f1f1;
-        color: #6c757d;
+    /* Modal styles */
+    .comments-modal .modal-content {
+        border-radius: 12px;
     }
 
-    .comment-btn:hover {
-        background-color: rgba(0, 123, 255, 0.1);
-    }
-
-    /* Description and comment section */
-    .card-des {
-        font-size: 14px;
-        color: #6c757d;
-    }
-
-    .comment-section {
-        max-height: 150px;
-        overflow-y: auto;
-        background: #f8f8f8;
-        padding: 10px;
-        border-radius: 5px;
-        margin-top: 10px;
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .comment-form textarea {
-        width: 100%;
-        margin-bottom: 10px;
+    .comments-modal .modal-header {
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 16px;
     }
 
     .comments-list {
-        font-size: 14px;
-        color: #444;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 16px;
     }
 
-    .comments-list div {
-        margin-bottom: 5px;
-        padding: 5px;
-        background: #e9ecef;
-        border-radius: 5px;
+    .comment {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
     }
 
+    .comment:last-child {
+        border-bottom: none;
+    }
+
+    .comment-form {
+        padding: 16px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .comment-input {
+        border: none;
+        resize: none;
+    }
+
+    .comment-input:focus {
+        box-shadow: none;
+    }
 </style>
 
 <!-- Navbar -->
-<nav class="navbar">
-    <a href="#" class="navbar-logo">
-        <img src="{{ url_for('static', filename='logoo/insta_logo.png') }}" alt="Logo">
-        InstaVibe
-    </a>
-    <a href="{{ url_for('upload') }}" class="navbar-button">Upload Image</a>
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a href="#" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logoo/insta_logo.png') }}" alt="Logo">
+            InstaVibe
+        </a>
+        <a href="{{ url_for('upload') }}" class="btn upload-btn">
+            <i class="bi bi-plus-square"></i> Upload
+        </a>
+    </div>
 </nav>
 
-<div class="container-fluid mt-4">
-    <h1 class="text-center mb-4">Uploaded Images</h1>
-
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+<div class="container py-4">
+    <div class="row">
         {% for image in images %}
-        <div class="col">
-            <div class="card h-100 shadow-sm" data-image-id="{{ image['image_id'] }}">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card" data-image-id="{{ image['image_id'] }}">
+                <div class="card-header">
+                    <i class="bi bi-person-circle fs-4"></i>
+                    <span class="fw-bold">{{ image['user_poster'] }}</span>
+                </div>
+                
                 <img src="{{ url_for('static', filename='uploads/' + image['filename']) }}" 
                      class="card-img-top" alt="{{ image['description'] }}">
 
-                <div class="card-body">
-                    <!-- Like and Comment Buttons -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="like-btn">
-                            <i class="fas fa-heart text-muted"></i>
-                        </button>
-                        <span class="like_count ms-2">{{ image['likes'] }}</span>
+                <div class="card-actions">
+                    <button class="action-btn like-btn">
+                        <i class="bi {{ 'bi-heart-fill text-danger' if image['is_liked'] else 'bi-heart' }}"></i>
+                    </button>
+                    <button class="action-btn comment-toggle" data-bs-toggle="modal" data-bs-target="#commentsModal-{{ image['image_id'] }}">
+                        <i class="bi bi-chat"></i>
+                    </button>
+                    <span class="likes-count">{{ image['likes'] }} likes</span>
+                </div>
 
-                        <button class="comment-btn btn btn-outline-secondary comment-toggle" data-image-id="{{ image['image_id'] }}">
-                            <i class="fas fa-comment"></i>
-                        </button>
+                <div class="card-description">
+                    <p class="mb-0">
+                        <span class="fw-bold">Description:</span>
+                        {{ image['description'][:100] }}{% if image['description']|length > 100 %}...{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Modal -->
+        <div class="modal fade comments-modal" id="commentsModal-{{ image['image_id'] }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Comments</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-
-                    <!-- Description -->
-                    <div class="card-des">
-                        <h6 class="card-title mt-2">Description</h6>
-                        <p class="card-text text-muted description-text" id="desc-{{ image['image_id'] }}">
-                            {{ image['description'][:100] }}{% if image['description']|length > 100 %}...{% endif %}
-                        </p>
-                    </div>
-
-                    <!-- Comment Section -->
-                    <div class="comment-section mt-3" style="display:none;">
-                        <form class="comment-form">
-                            <textarea class="form-control comment-input" rows="3" placeholder="Write a comment"></textarea>
-                            <button class="btn btn-primary submit-comment mt-2" data-image-id="{{ image['image_id'] }}">
-                                Post Comment
-                            </button>
-                        </form>   
-
-                        <div class="comments-list mt-3">
-                            <!-- Comments will be dynamically added here -->
+                    <div class="comments-list">
+                        {% for comment in image['comments'] %}
+                        <div class="comment">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-person-circle"></i>
+                                <span class="fw-bold">{{ comment['username'] }}</span>
+                            </div>
+                            <p class="mb-1">{{ comment['comment'] }}</p>
+                            <small class="text-muted">{{ comment['timestamp'] }}</small>
                         </div>
+                        {% endfor %}
                     </div>
+                    <form class="comment-form">
+                        <div class="input-group">
+                            <textarea class="form-control comment-input" rows="2" placeholder="Add a comment..."></textarea>
+                            <button class="btn btn-primary submit-comment" type="submit" data-image-id="{{ image['image_id'] }}">
+                                Post
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -218,107 +231,105 @@
 </div>
 {% endblock %}
 
- 
-
 {% block scripts %}
-
 <script>
-
-document.querySelectorAll(".like_btn").forEach(button => {
-    button.addEventListener("click", function () {
-        const imageId = this.closest(".text-center").getAttribute("data-image-id");
-        console.log("Like button clicked for image ID:", imageId);
-
-        // Send the like request to the server
-        fetch("/like", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image_id: imageId })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("Internal Server Error");
-            return response.json();
-        })
-        .then(data => {
-            console.log("Like response data:", data);
-
-            // Update like count
-            const likeCountElement = this.closest(".text-center").querySelector(".like_count");
-            if (likeCountElement) {
-                likeCountElement.textContent = data.total_likes;
-            }
-
-            // Toggle the red class for heart icon color change
-            const icon = this.querySelector("i");
-            if (icon) {
-                icon.classList.toggle("red", data.liked); // Toggle red class
-            }
-        })
-        .catch(error => console.error("Error:", error));
-    });
-});
-
-document.querySelectorAll(".comment-toggle").forEach(button => {
-    button.addEventListener("click", function () {
-        const imageId = this.getAttribute("data-image-id");
-        const commentSection = this.closest(".card").querySelector(".comment-section");
-
-        // Toggle the visibility of the comment box
-        commentSection.style.display = commentSection.style.display === "none" ? "block" : "none";
-
-        // If the section is being opened, fetch and display existing comments
-        if (commentSection.style.display !== "none") {
-            fetch(`/get_comments/${imageId}`)
-                .then(response => response.json())
-                .then(comments => {
-                    const commentsList = commentSection.querySelector(".comments-list");
-                    commentsList.innerHTML = "";  // Clear existing comments
-                    comments.forEach(comment => {
-                        const commentElement = document.createElement("div");
-                        commentElement.innerHTML = `<strong>${comment.username}:</strong> ${comment.comment}<br><small>${comment.timestamp}</small>`;
-                        commentsList.appendChild(commentElement);
-                    });
-                });
-        }
-    });
-});
-
-document.querySelectorAll(".submit-comment").forEach(button => {
-    button.addEventListener("click", function (event) {
-        event.preventDefault();  // Prevent default form submission
-        const imageId = this.getAttribute("data-image-id");
-        const commentText = this.closest(".comment-form").querySelector(".comment-input").value.trim();
-
-        if (!commentText) {
-            alert("Please enter a comment.");
-            return;
-        }
-
-        // Send the comment to the server
-        fetch("/comments", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                image_id: imageId,
-                comment: commentText
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const commentsList = this.closest(".comment-section").querySelector(".comments-list");
-            const newCommentElement = document.createElement("div");
-            newCommentElement.innerHTML = `<strong>${data.username}:</strong> ${data.comment}<br><small>${data.timestamp}</small>`;
-            commentsList.prepend(newCommentElement);  // Add the new comment to the top
-        })
-        .catch(error => console.error("Error posting comment:", error));
-    });
-});
-
+document.addEventListener('DOMContentLoaded', function() {
+    // Like functionality
+    const likeButtons = document.querySelectorAll('.like-btn');
     
-  </script>
+    likeButtons.forEach(button => {
+        button.addEventListener('click', handleLikeClick);
+    });
 
+    // Comment submission
+    document.querySelectorAll('.submit-comment').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const imageId = this.dataset.imageId;
+            const modal = this.closest('.modal');
+            const commentInput = modal.querySelector('.comment-input');
+            const commentText = commentInput.value.trim();
 
+            if (!commentText) return;
+
+            try {
+                const response = await fetch('/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image_id: imageId,
+                        comment: commentText
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const commentsList = modal.querySelector('.comments-list');
+                    const newComment = document.createElement('div');
+                    newComment.className = 'comment';
+                    newComment.innerHTML = `
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-person-circle"></i>
+                            <span class="fw-bold">${data.username}</span>
+                        </div>
+                        <p class="mb-1">${data.comment}</p>
+                        <small class="text-muted">${data.timestamp}</small>
+                    `;
+                    commentsList.insertBefore(newComment, commentsList.firstChild);
+                    commentInput.value = '';
+                }
+            } catch (error) {
+                console.error('Error posting comment:', error);
+            }
+        });
+    });
+});
+
+async function handleLikeClick(event) {
+    const likeButton = event.currentTarget;
+    const card = likeButton.closest('.card');
+    const imageId = card.dataset.imageId;
+    const heartIcon = likeButton.querySelector('i');
+    const likesCount = card.querySelector('.likes-count');
+    
+    try {
+        const response = await fetch('/like', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image_id: imageId })
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                alert('Please log in to like images');
+                window.location.href = '/';
+                return;
+            }
+            throw new Error('Failed to process like');
+        }
+
+        const data = await response.json();
+        
+        // Update the UI
+        if (data.liked) {
+            heartIcon.classList.remove('bi-heart');
+            heartIcon.classList.add('bi-heart-fill', 'text-danger');
+        } else {
+            heartIcon.classList.remove('bi-heart-fill', 'text-danger');
+            heartIcon.classList.add('bi-heart');
+        }
+        
+        likesCount.textContent = `${data.total_likes} likes`;
+        
+    } catch (error) {
+        console.error('Error processing like:', error);
+        alert('Failed to process like. Please try again.');
+    }
+}
+</script>
 {% endblock %}
-

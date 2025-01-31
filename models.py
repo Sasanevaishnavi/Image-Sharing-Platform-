@@ -3,6 +3,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -15,14 +16,18 @@ class User(db.Model):
     likes = db.relationship('Like', backref='user', lazy=True)
     comments = db.relationship("Comment", backref="user", lazy="dynamic")
 
+
 class Image(db.Model):
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_images_user_id'), nullable=False)  # Rename 'user' to 'user_id'
     filename = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, nullable=False)
     likes = db.Column(db.Integer, default=0)
-    # Add relationships
+
+    # Relationships
+    user = db.relationship('User', backref='images')  # Correct way to create relationship
     image_likes = db.relationship('Like', backref='image', lazy='dynamic', cascade="all, delete-orphan")
     comments = db.relationship('Comment', backref='image', lazy='dynamic', cascade="all, delete-orphan")
 

@@ -6,8 +6,6 @@ import os
 from datetime import datetime
 
 
-
-
 def init_routes(app):
     @app.route('/')
     def home():
@@ -75,21 +73,38 @@ def init_routes(app):
 
     @app.route('/Home')
     def Home():
-        if 'user_id' not in session:
-            return redirect(url_for('login'))
+        if 'user_id' in session:
+                user_id = session['user_id']
+        else:
+                user_id = None
+                # push him to login page
+                return redirect(url_for('login'))
 
         images = Image.query.all()
-        user_id = session['user_id']
-
+        user_id = session.get("user_id", None)
+        
         image_data = []
         for image in images:
-            is_liked = Like.query.filter_by(user_id=user_id, image_id=image.id).first() is not None
+            is_liked = False
+            if user_id:
+                is_liked = Like.query.filter_by(user_id=user_id, image_id=image.id).first() is not None
+            comments = Comment.query.filter_by(image_id=image.id).order_by(Comment.created_at.desc()).all()
+
+            comments_data = [{
+                "username " : comment.user.first_name,
+                "comment" : comment.comment,
+                "timestamp": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            } for comment in comments]
+
             image_data.append({
                 "image_id": image.id,
+                "user_poster": image.user.first_name,
                 "filename": image.filename,
                 "description": image.description,
                 "likes": image.likes,
-                "is_liked": is_liked
+                "is_liked": is_liked,
+                "comments": comments_data 
+                
             })
 
         print(image_data)
@@ -143,62 +158,55 @@ def init_routes(app):
         
         return jsonify(comments_data)
     
-    @app.route("/newHome", methods = ["GET","POST"])
-    def newhome():
-       
-        
-        return render_template("newHome.html")
-
-    @app.route("/like", methods=["POST"])
+# ---------------------------------------------------------------------------------------------------------
+    @app.route("/like", methods=["PUT"])
     def like_image():
         if 'user_id' not in session:
-            print("User not logged in.")
             return jsonify({'error': 'User not logged in'}), 401
-
         try:
             data = request.json
-            print(f"Received data: {data}")
-            image_id = data.get('image_id')  # Safely get the image_id from the request
-            user_id = session.get('user_id')  # Fetch user ID from session
-            post_id=0
-
+            image_id = data.get('image_id')
+            user_id = session['user_id']
             if not image_id:
-                print("Missing image ID.")
                 return jsonify({"error": "Image ID is missing"}), 400
-
-            # Ensure the image exists
-            image = Image.query.filter_by(id=image_id).first()
-            if not image:
-                return jsonify({"error": "Image not found"}), 404
-
-
-              # Fetch post_id from the request
-            
-                  # Define logic to determine post_id
-                # Check if the user already liked the image
-            existing_like = Like.query.filter_by(user_id=user_id, image_id=image_id).first()
-
+            # Get the image
+            image = Image.query.get_or_404(image_id)
+            # Check if user already liked this image
+            existing_like = Like.query.filter_by(
+                user_id=user_id,
+                image_id=image_id
+            ).first()
             if existing_like:
-                    # Unlike the image
-                    db.session.delete(existing_like)
-                    image.likes = max(image.likes - 1, 0)  # Prevent negative likes
-                    liked = False
+                # Unlike
+                db.session.delete(existing_like)
+                image.likes = max(0, image.likes - 1)  # Prevent negative likes
+                liked = False
             else:
-                    # Like the image
-                    new_like = Like(user_id=user_id, image_id=image_id, post_id=post_id)
-                    db.session.add(new_like)
-                    image.likes += 1  # Increment like count
-                    liked = True
-
+                # Like
+                new_like = Like(
+                    user_id=user_id,
+                    image_id=image_id,
+                    post_id=0  # Default value if needed
+                )
+                db.session.add(new_like)
+                image.likes += 1
+                liked = True
             db.session.commit()
-
-            return jsonify({"liked": liked, "total_likes": image.likes})
+            return jsonify({
+                "liked": liked,
+                "total_likes": image.likes
+            })
         except Exception as e:
+            db.session.rollback()
             print(f"Error processing like: {e}")
-            return jsonify({"error": "Internal Server Error"}), 500
+            return jsonify({"error": str(e)}), 500
     
     @app.route('/upload', methods=['GET', 'POST'])
     def upload():
+        if 'user_id' not in session:
+            flash("You need to log in to upload images", "danger")
+            return redirect(url_for('login'))
+
         if request.method == "POST":
             # Check if the form has an image file
             if 'image' not in request.files or request.files['image'].filename == '':
@@ -215,9 +223,10 @@ def init_routes(app):
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 image.save(filepath)
 
-                # Save the image details in the database
+                # Save the image details in the database with user_id
+                user_id = session['user_id']  # Get the logged-in user ID
                 file_type = image.mimetype
-                new_image = Image(filename=filename, type=file_type, description=description)
+                new_image = Image(user_id=user_id, filename=filename, type=file_type, description=description)  # Use 'user_id'
                 db.session.add(new_image)
                 db.session.commit()
 
@@ -226,13 +235,5 @@ def init_routes(app):
 
         return render_template("upload.html")
 
-    
-
-
-
+        
     return app
-
-
-
-
-
