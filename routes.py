@@ -82,23 +82,53 @@ def init_routes(app):
 
         images = Image.query.all()
         user_id = session.get("user_id", None)
+        # =========================================
+        print ("its an user id for each image ",user_id)
         
+        # =======================================
         image_data = []
         for image in images:
             is_liked = False
             if user_id:
                 is_liked = Like.query.filter_by(user_id=user_id, image_id=image.id).first() is not None
-            comments = Comment.query.filter_by(image_id=image.id).order_by(Comment.created_at.desc()).all()
+# ---------------------------------------------------------------------------------------------------------
+             # Debugging: Print the user_id for each image
+            print(f"Fetching Uploader for Image ID {image.id}, User ID: {image.user_id}")
 
-            comments_data = [{
-                "username " : comment.user.first_name,
-                "comment" : comment.comment,
-                "timestamp": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-            } for comment in comments]
+            uploader = User.query.filter_by(id=image.user_id).first()  # Correctly fetch uploader
+            user_poster_name = uploader.first_name if uploader else "Unknown"
+
+            # Debugging: Check if we found the uploader
+            if uploader:
+                print(f"Uploader Found: {uploader.first_name}")
+            else:
+                print(f"Uploader Not Found for Image ID {image.id}")
+
+
+            comments = Comment.query.filter_by(image_id=image.id).order_by(Comment.created_at.desc()).all()
+# -------------------------------------------------------------------------
+            comments_data = []
+            for comment in comments:
+                commenter = User.query.filter_by(id=comment.user_id).first()  # Fetch commenter
+                commenter_name = commenter.first_name if commenter else "Unknown"
+
+                comments_data.append({
+                    "username": commenter_name,  # Correct name of the commenter
+                    "comment": comment.comment,
+                    "timestamp": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    "comment_id": comment.id,  # Add this
+                    "user_id": comment.user_id
+                })
+            # comments_data = [{
+            #     "username" : comment.user.first_name,
+            #     "comment" : comment.comment,
+            #     "timestamp": comment.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            # } for comment in comments]
 
             image_data.append({
                 "image_id": image.id,
-                "user_poster": image.user.first_name,
+            # --------------------------------------------
+                "user_poster": user_poster_name,
                 "filename": image.filename,
                 "description": image.description,
                 "likes": image.likes,
@@ -107,7 +137,7 @@ def init_routes(app):
                 
             })
 
-        print(image_data)
+        # print(image_data)
 
         return render_template("home.html", images=image_data)
     
@@ -140,7 +170,8 @@ def init_routes(app):
         return jsonify({
             'comment': new_comment.comment,
             'username': session.get('username'),  # Assuming username is in session
-            'timestamp': new_comment.created_at.isoformat()
+            'timestamp': new_comment.created_at.isoformat(),
+            'comment_id': new_comment.id 
         })
 
 
@@ -158,7 +189,37 @@ def init_routes(app):
         
         return jsonify(comments_data)
     
-# ---------------------------------------------------------------------------------------------------------
+
+
+    @app.route('/comments/<int:comment_id>', methods =['DELETE'])
+    def delete_comment(comment_id):
+        print(f"Received request to delete comment with ID: {comment_id}") 
+
+        if 'user_id' not in session:
+            print("User is not logged in")
+            return jsonify ({'error': 'Please login first'}), 401
+        
+        comment = Comment.query.get(comment_id)
+
+        if not comment:
+            print("Comment not found in database")  # Debugging line
+            return jsonify({'error': 'Comment not found'}), 404
+
+        if comment.user_id != session['user_id']:
+            print(f"Unauthorized access attempt by user {session['user_id']} for comment {comment_id}")  # Debugging line
+            return jsonify({'error': 'Unauthorized'}), 403
+            
+        try:
+            db.session.delete(comment)
+            db.session.commit()
+            return jsonify({'message': 'Comment deleted successfully'}), 200
+        except Exception as e:
+            db.session.rollback()  # Fixed: Rollback in case of error
+            return jsonify({'error': 'Database error', 'details': str(e)}), 500
+
+
+
+
     @app.route("/like", methods=["PUT"])
     def like_image():
         if 'user_id' not in session:
@@ -200,7 +261,7 @@ def init_routes(app):
             db.session.rollback()
             print(f"Error processing like: {e}")
             return jsonify({"error": str(e)}), 500
-    
+        
     @app.route('/upload', methods=['GET', 'POST'])
     def upload():
         if 'user_id' not in session:
@@ -208,25 +269,34 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         if request.method == "POST":
-            # Check if the form has an image file
             if 'image' not in request.files or request.files['image'].filename == '':
                 flash("No file selected", "danger")
                 return redirect(request.url)
 
-            # Retrieve the image and description
             image = request.files["image"]
             description = request.form.get("description")
 
             if image:
-                # Secure the filename and save the file
                 filename = secure_filename(image.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 image.save(filepath)
 
-                # Save the image details in the database with user_id
-                user_id = session['user_id']  # Get the logged-in user ID
-                file_type = image.mimetype
-                new_image = Image(user_id=user_id, filename=filename, type=file_type, description=description)  # Use 'user_id'
+                user_id = session.get('user_id')  # ✅ Correctly fetch user_id from session
+
+                # Debugging print
+                print(f"Uploading Image by User ID: {user_id}")
+
+                if not user_id:
+                    flash("Error: User not found. Please log in again.", "danger")
+                    return redirect(url_for('login'))
+
+                # ✅ Ensure `user_id` is stored properly
+                new_image = Image(
+                    user_id=user_id,  # Correct user_id assignment
+                    filename=filename,
+                    type=image.mimetype,
+                    description=description
+                )
                 db.session.add(new_image)
                 db.session.commit()
 
@@ -234,6 +304,8 @@ def init_routes(app):
                 return redirect("/Home")
 
         return render_template("upload.html")
+
+
 
         
     return app
