@@ -184,3 +184,4 @@ Werkzeug==3.0.2
 widgetsnbextension==4.0.10
 wrapt==1.16.0
 yellowbrick==1.5
+gunicorn    
