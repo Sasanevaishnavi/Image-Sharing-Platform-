@@ -8,7 +8,7 @@ from datetime import datetime
 
 def init_routes(app):
     @app.route('/')
-    def home():
+    def index2():
         return render_template("index.html")
 
     @app.route("/login", methods=["GET", "POST"])
@@ -71,8 +71,8 @@ def init_routes(app):
 
         return render_template('signup.html')
 
-    @app.route('/Home')
-    def Home():
+    @app.route('/home')
+    def home():
         if 'user_id' in session:
                 user_id = session['user_id']
         else:
@@ -338,10 +338,5 @@ def init_routes(app):
         except Exception as e:
             db.session.rollback()  # Fixed: Rollback in case of error
             return jsonify({'error': 'Database error', 'details': str(e)}), 500
-
-
-
-
-
-        
+   
     return app
