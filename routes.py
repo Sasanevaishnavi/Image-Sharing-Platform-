@@ -62,7 +62,7 @@ def init_routes(app):
                 db.session.commit()
 
                 flash('Sign-in successful!', 'success')
-                return redirect('/Home')
+                return redirect('/home')
 
             except Exception as e:
                 db.session.rollback()
@@ -290,7 +290,7 @@ def init_routes(app):
                 db.session.commit()
 
                 flash("Image uploaded successfully", "success")
-                return redirect("/Home")
+                return redirect("/home")
 
         return render_template("upload.html")
     
