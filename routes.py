@@ -32,7 +32,7 @@ def init_routes(app):
                     flash(f"Welcome, {user.first_name}", "success")
                     session['user_id'] = user.id # Save user ID in the session
                     print("Session User ID:", session.get('user_id'))
-                    return redirect(url_for('Home'))  # Ensure correct route name
+                    return redirect(url_for('home'))
                 else:
                     flash("Invalid Username and Password. Please try again.", "danger")
                     return redirect(url_for('login'))
