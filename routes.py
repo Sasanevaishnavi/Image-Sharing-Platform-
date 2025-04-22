@@ -252,6 +252,8 @@ def init_routes(app):
             print(f"Error processing like: {e}")
             return jsonify({"error": str(e)}), 500
         
+        
+        
     @app.route('/upload', methods=['GET', 'POST'])
     def upload():
         if 'user_id' not in session:
@@ -340,3 +342,8 @@ def init_routes(app):
             return jsonify({'error': 'Database error', 'details': str(e)}), 500
    
     return app
+
+
+
+
+

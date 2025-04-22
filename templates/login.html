@@ -1,100 +1,90 @@
-
 {% extends "base.html" %}
-{% block title %}login{% endblock %}
-
+{% block title %}Login{% endblock %}
 
 {% block content %}
-
 <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    body {
+        margin: 0;
+        padding: 0;
+        background: url('https://source.unsplash.com/1600x900/?login,technology') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
 
-        /* Centering the Form */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Full height of the viewport */
-            background-color: #f4f4f9; /* Light background color */
-            font-family: Arial, sans-serif;
-        }
+    .form-container {
+        background: rgba(255, 255, 255, 0.9); /* Lighter & opaque background for readability */
+        border-radius: 15px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: #333; /* Dark text for visibility */
+    }
 
-        /* Styling the Form Container */
-        .form-container {
-            background-color: white; /* White background for the form */
-            padding: 30px; /* Add padding inside the form */
-            border-radius: 10px; /* Rounded corners */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-            width: 100%;
-            max-width: 400px; /* Limit the width of the form */
-            text-align: center; /* Center-align text inside the container */
-        }
+    .form-heading {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #222;
+        letter-spacing: 1px;
+    }
 
-        /* Heading Styling */
-        .form-heading {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
+    label {
+        font-size: 14px;
+        display: block;
+        margin: 10px 0 5px;
+        color: #222;
+        text-align: left;
+    }
 
-        /* Input Fields and Labels */
-        label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-            display: block;
-        }
+    input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        background-color: #f9f9f9;
+        color: #333;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
+    input::placeholder {
+        color: #888;
+    }
 
-        /* Submit Button */
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff; /* Blue button color */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #28a745;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
 
-        button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
+    button:hover {
+        background: #218838;
+    }
 </style>
 
+<div class="form-container">
+    <div class="form-heading">Welcome to InstaVibe</div>
+    <form action="{{ url_for('login') }}" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
-    <!-- Login Form -->
-    <div class="form-container">
-        <!-- Text Above the Form -->
-        <div class="form-heading" >InstaVibe</div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
 
-        <!-- Form -->
-        <form action="{{ url_for('login') }}" method="POST">
-
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Log In </button>
-        </form>
-    </div>
+        <button type="submit">Log In</button>
+    </form>
+    <p style=" margin-top: 20px;">Don't have an account? <a href="/signup">Sign up now</a></p>
+</div>
 {% endblock %}
-
-

@@ -1,4 +1,266 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">InstaVibe</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero-section">
+  <div class="overlay"></div>
+  <div class="text-center content">
+    <h1>Welcome to InstaVibe</h1>
+    <p class="lead">Discover, share, and connect through the power of images and stories.</p>
+    <div class="d-flex justify-content-center gap-3 mt-3">
+      <a class="btn btn-primary" href="/login">Log in</a>
+      <a class="btn btn-success" href="/signup">Sign Up</a>
+    </div>
+  </div>
+</section>
+ 
+<!-- about session  -->
+
+<section id="about" class="py-5 bg-light text-dark">
+    <div class="container">
+      <h2 class="mb-4 text-center">About InstaVibe</h2>
+      <img src="https://source.unsplash.com/600x400/?social,sharing" class="img-fluid rounded mb-3" alt="Sharing on InstaVibe">
+
+      
+      <p class="lead text-center">
+        InstaVibe is your go-to space to share life’s moments, connect with friends, and explore inspiring content from around the world.
+      </p>
+  
+      <div class="mt-4">
+        <h4>🌟 What is InstaVibe?</h4>
+        <p>
+          InstaVibe is a modern, user-friendly image sharing platform designed to help people post, view, and interact with photos and short stories. Whether you're an artist, traveler, food lover, or just someone who loves capturing memories — InstaVibe gives you a place to express and explore.
+        </p>
+      </div>
+  
+      <div class="mt-4">
+        <h4>🖼️ How It Looks</h4>
+        <p>
+          The platform features a clean and elegant interface with a focus on visuals. The homepage displays trending images and posts in a beautiful grid layout. With a dark-themed navbar and smooth scrolling design, it offers a sleek and immersive browsing experience. Each image comes with likes, comments, and sharing options — keeping it simple yet engaging.
+        </p>
+      </div>
+  
+      <div class="mt-4">
+        <h4>⚙️ How It Works</h4>
+        <ul>
+          <li><strong>Sign Up:</strong> Create your free account in just a few clicks.</li>
+          <li><strong>Login:</strong> Access your dashboard and explore or post content.</li>
+          <li><strong>Upload:</strong> Choose your favorite photos and add captions or hashtags.</li>
+          <li><strong>Explore:</strong> Discover content from others based on categories, popularity, or location.</li>
+          <li><strong>Engage:</strong> Like, comment, and follow users to stay connected.</li>
+        </ul>
+        <p>
+          InstaVibe uses intelligent filters and smart recommendations to help you find content you love — whether it’s artistic photography, daily moments, or trending memes!
+        </p>
+      </div>
+  
+      <div class="mt-4">
+        <h4>💬 Why Choose InstaVibe?</h4>
+        <p>
+          Simple to use. Beautiful to look at. Fun to explore. InstaVibe makes sharing easy and meaningful. Join our growing community and be part of a world where every photo tells a story.
+        </p>
+      </div>
+    </div>
+  </section>
+  
+
+
+
+
+
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+  <div class="container text-center">
+    <h2 class="mb-4">Features</h2>
+    <div class="row">
+      <div class="col-md-4"><h5>📷 Share Photos</h5><p>Upload and share images instantly.</p></div>
+      <div class="col-md-4"><h5>👥 Connect</h5><p>Follow and connect with friends easily.</p></div>
+      <div class="col-md-4"><h5>📊 Insights</h5><p>Track your views and likes.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5 bg-light text-dark">
+  <div class="container">
+    <h2 class="mb-4">Contact Us</h2>
+    <p>Email us at support@instavibe.com or fill out our contact form to get in touch!</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3">
+  &copy; 2025 InstaVibe. All rights reserved.
+</footer>
+
+<!-- CSS -->
+<style>
+.hero-section {
+  position: relative;
+  background: url("/static/image.png") no-repeat center center/cover;
+  height: 100vh;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-section .overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hero-section .content {
+  position: relative;
+  z-index: 2;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+}
+
+section {
+  scroll-margin-top: 60px; /* ensures scrolling doesn't go under navbar */
+}
+</style>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,8 +287,6 @@
         margin-top: 70px;
             padding-bottom: 100px;
 
-
-
         }
 
         .card img {
@@ -37,7 +297,7 @@
 </head>
 <body >
     <div class="container">
-        <!-- Card with Image -->
+        Card with Image 
         <div class="card mb-3" style="max-width: 540px; margin: auto;">
             <div class="row g-0" style="background-color:floralwhite;">
                 <div class="col-md-4">
@@ -52,11 +312,11 @@
                 </div>
             </div>
         </div>
-        <!-- Login and Sign-Up Buttons -->
-        <div class="d-flex justify-content-center gap-3">
+        Login and Sign-Up Buttons -->
+        <!-- <div class="d-flex justify-content-center gap-3">
             <a class="btn btn-primary" href="/login" role="button">Log in</a>
             <a class="btn btn-primary" href="/signup" role="button">Sign Up</a>
         </div>
     </div>
 </body>
-</html>
+</html> -->
